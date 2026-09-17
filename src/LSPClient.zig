@@ -1631,7 +1631,7 @@ fn send_init_request(
                         .snippetSupport = true,
                         .commitCharactersSupport = true,
                         .documentationFormat = .{
-                            // "markdown",
+                            "markdown",
                             "plaintext",
                         },
                         .deprecatedSupport = true,
@@ -1660,7 +1660,7 @@ fn send_init_request(
                 .hover = .{
                     .dynamicRegistration = true,
                     .contentFormat = .{
-                        // "markdown",
+                        "markdown",
                         "plaintext",
                     },
                 },
@@ -1668,7 +1668,7 @@ fn send_init_request(
                     .dynamicRegistration = true,
                     .signatureInformation = .{
                         .documentationFormat = .{
-                            // "markdown",
+                            "markdown",
                             "plaintext",
                         },
                         .parameterInformation = .{ .labelOffsetSupport = true },

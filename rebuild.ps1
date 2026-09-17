@@ -39,13 +39,22 @@ $running = Get-Process flow -ErrorAction SilentlyContinue
 
 if ($running) {
     Write-Warning "flow is running (PID $($running.Id -join ', ')); the new build applies on next start"
-    $stale = Join-Path $InstallDir 'flow-inuse-old.exe'
-    if (Test-Path $stale) { Remove-Item $stale -Force -ErrorAction SilentlyContinue }
-    if (Test-Path $target) { Move-Item $target $stale -Force }
+    # A previously displaced binary may still be executing, so it cannot be
+    # deleted or reused as a rename target. Move aside under a unique name and
+    # sweep up whatever is no longer locked.
+    if (Test-Path $target) {
+        $stale = Join-Path $InstallDir ("flow-stale-{0}.exe" -f (Get-Date -Format 'yyyyMMdd-HHmmss'))
+        Move-Item $target $stale -Force
+    }
+    Get-ChildItem -Path $InstallDir -Filter 'flow-stale-*.exe' -ErrorAction SilentlyContinue |
+        ForEach-Object { Remove-Item $_.FullName -Force -ErrorAction SilentlyContinue }
 }
 
 Copy-Item $built $target -Force
 
-$version = (& $target --version | Select-Object -First 3) -join "`n"
+# Capture in full before trimming: piping a native command into Select-Object
+# -First closes the pipe early and surfaces a bogus exit code.
+$versionLines = @(& $target --version)
 Write-Host "installed to $target" -ForegroundColor Green
-Write-Host $version
+Write-Host (($versionLines | Select-Object -First 3) -join "`n")
+exit 0
