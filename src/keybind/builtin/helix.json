@@ -28,13 +28,14 @@
             ["ctrl+^", "open_previous_file"],
             ["ctrl+w v", "add_split"],
             ["ctrl+w c", "toggle_centered_view"],
-            ["ctrl+w h", "goto_left_split"],
-            ["ctrl+w l", "goto_right_split"],
+            ["ctrl+w h", "focus_prev_split"],
+            ["ctrl+w l", "focus_next_split"],
+            ["ctrl+w j", "focus_panel"],
             ["ctrl+w H", "swap_left_split"],
             ["ctrl+w L", "swap_right_split"],
             ["ctrl+w F", "goto_file_split"],
             ["ctrl+w q", "close_split"],
-            ["ctrl+w o", "close_other_splits"],
+            ["ctrl+w o", "close_splits"],
 
             ["alt+.", "repeat_last_motion"],
             ["alt+d", "delete_backward"],
@@ -578,5 +579,22 @@
             ["q", "quit"],
             ["space", "home_menu_activate"]
         ]
-    } 
+    },
+    "filelist": {
+        "on_match_failure": "nothing",
+        "press": [
+            ["j", "select_next_file"],
+            ["k", "select_prev_file"],
+            ["ctrl+d", "select_next_file_page"],
+            ["ctrl+u", "select_prev_file_page"],
+            ["g g", "select_file_begin"],
+            ["g e", "select_file_end"],
+            ["l", "goto_selected_file"],
+            ["enter", "goto_selected_file"],
+            ["q", "unfocus_filelist"],
+            ["escape", "unfocus_filelist"],
+            ["ctrl+w k", "unfocus_filelist"],
+            ["ctrl+w q", "filelist_close"]
+        ]
+    }
 }

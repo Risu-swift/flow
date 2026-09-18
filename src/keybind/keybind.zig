@@ -1393,6 +1393,36 @@ test "keybind omitted mode inherits keybinds and settings" {
     try std.testing.expect(insert.deinit_command != null);
 }
 
+test "helix panel and buffer navigation bindings resolve" {
+    reset_namespaces_for_test();
+    const helix = try get_or_load_builtin_namespace("helix");
+
+    // editor: window-mode keys reach the bottom panel and the splits
+    const normal = helix.get_mode("normal").?;
+    try std.testing.expectEqualStrings("focus_panel", (try test_command_for(normal, "ctrl+w j")).?);
+    try std.testing.expectEqualStrings("focus_prev_split", (try test_command_for(normal, "ctrl+w h")).?);
+    try std.testing.expectEqualStrings("focus_next_split", (try test_command_for(normal, "ctrl+w l")).?);
+    try std.testing.expectEqualStrings("close_splits", (try test_command_for(normal, "ctrl+w o")).?);
+    try std.testing.expectEqualStrings("next_tab", (try test_command_for(normal, "g n")).?);
+    try std.testing.expectEqualStrings("previous_tab", (try test_command_for(normal, "g p")).?);
+
+    // file list panel: helix-style movement layered over flow's filelist mode
+    const filelist = helix.get_mode("filelist").?;
+    try std.testing.expectEqualStrings("select_next_file", (try test_command_for(filelist, "j")).?);
+    try std.testing.expectEqualStrings("select_prev_file", (try test_command_for(filelist, "k")).?);
+    try std.testing.expectEqualStrings("select_file_begin", (try test_command_for(filelist, "g g")).?);
+    try std.testing.expectEqualStrings("goto_selected_file", (try test_command_for(filelist, "l")).?);
+    try std.testing.expectEqualStrings("unfocus_filelist", (try test_command_for(filelist, "ctrl+w k")).?);
+    // flow's own filelist bindings still apply underneath
+    try std.testing.expectEqualStrings("select_next_file", (try test_command_for(filelist, "down")).?);
+    // flow's single-key ctrl+w is shadowed now that ctrl+w is a prefix here
+    try std.testing.expect((try test_command_for(filelist, "ctrl+w")) == null);
+
+    // the terminal panel must keep j as text input
+    if (helix.get_mode("terminal")) |terminal|
+        try std.testing.expect((try test_command_for(terminal, "j")) == null);
+}
+
 test "keybind <<builtin>> resolution and remove-to-inherit" {
     reset_namespaces_for_test();
     // a custom "flow" that shadows the builtin and inherits it; only declares "normal"
