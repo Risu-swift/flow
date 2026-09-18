@@ -119,7 +119,9 @@ fn entry_less_than(_: void, a: Entry, b: Entry) bool {
 pub fn add(self: *Self, entry_: Entry) !void {
     const path = try self.allocator.dupe(u8, entry_.path);
     errdefer self.allocator.free(path);
-    const lines = try self.allocator.dupe(u8, entry_.lines);
+    // Preview lines from CRLF files arrive with a trailing carriage return,
+    // which the list view would otherwise print as a literal \x0d.
+    const lines = try self.allocator.dupe(u8, std.mem.trimEnd(u8, entry_.lines, "\r\n"));
     errdefer self.allocator.free(lines);
     const entry = try self.entries.addOne(self.allocator);
     entry.* = entry_;
